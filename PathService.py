@@ -8,6 +8,11 @@ class PQEntry:
     def __cmp__(self, other):
         return cmp(self.pathservice.dist[self.value], self.pathservice.dist[other.value])
 
+    def __str__(self):
+        return self.value
+
+    def __repr__(self):
+        return str(self.value)
 class PathService:
     def __init__(self):
         self.path = []
@@ -20,13 +25,13 @@ class PathService:
         self.inv = inv
 
     def dijkstra(self, src, dst):
-        self.dist = []
-        previous = []
-        weight = []
-        nodes = inv.getNodes()
-        edges = inv.getEdges()
+        self.dist = {}
+        previous = {}
+        weight = {}
+        nodes = self.inv.getNodes()
+        edges = self.inv.getEdges()
         for node in nodes:
-            weight[nodes.index(node)] = []
+            weight[nodes.index(node)] = {}
         
         queue = []
         
@@ -44,14 +49,15 @@ class PathService:
         
         while queue:
             u = heapq.heappop(queue)
-            for node in u["neighbours"]
-                alt = self.dist[u] + weight[u][node]
-                if alt < dist[node]:
-                    dist[node] = alt
+            for node in nodes[u.value]["neighbours"]:
+                alt = self.dist[u.value] + weight[u.value][node]
+                if alt < self.dist[node]:
+                    self.dist[node] = alt
                     previous[node] = u
                     heapq.heapify(queue)
 
-        print previous        
+        print self.dist
+        print previous       
         return previous
         
         

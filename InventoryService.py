@@ -20,15 +20,17 @@ class InventoryService:
     def initPRNodes(self):
         for edge in self.edges:
             if edge["edge"]["tailNodeConnector"]["node"]["type"] == "PR":
-                self.nodes.append({
+                node = {
                     "properties":{
                         "description":edge["edge"]["tailNodeConnector"]["node"]["id"]
                     },
                     "node":{
                         "id":edge["edge"]["tailNodeConnector"]["node"]["id"]
                     }
-                })
-    
+                }
+                if node not in self.nodes:
+                    self.nodes.append(node)
+ 
     def initNodes(self):
         for node in self.nodes:
             node["neighbours"] = {}
