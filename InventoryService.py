@@ -22,10 +22,14 @@ class InventoryService:
             if edge["edge"]["tailNodeConnector"]["node"]["type"] == "PR":
                 node = {
                     "properties":{
-                        "description":edge["edge"]["tailNodeConnector"]["node"]["id"]
+                        "description":edge["edge"]["tailNodeConnector"]["node"]["id"],
+                        "nodeConnector":{
+                            "id":edge["edge"]["tailNodeConnector"]["id"]
+                        }
                     },
                     "node":{
-                        "id":edge["edge"]["tailNodeConnector"]["node"]["id"]
+                        "id":edge["edge"]["tailNodeConnector"]["node"]["id"],
+                        "type":"PR"
                     }
                 }
                 if node not in self.nodes:

@@ -14,5 +14,6 @@ if __name__ == "__main__":
     inv.initAll()
     ps = PathService.PathService()
     ps.setInventoryService(inv)
-    ps.dijkstra(0, 3)    
+    ps.dijkstra(14, 7)   
+
     

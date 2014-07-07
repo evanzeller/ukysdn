@@ -9,10 +9,11 @@ class PQEntry:
         return cmp(self.pathservice.dist[self.value], self.pathservice.dist[other.value])
 
     def __str__(self):
-        return self.value
+        return str(self.value)
 
     def __repr__(self):
         return str(self.value)
+
 class PathService:
     def __init__(self):
         self.path = []
@@ -53,12 +54,88 @@ class PathService:
                 alt = self.dist[u.value] + weight[u.value][node]
                 if alt < self.dist[node]:
                     self.dist[node] = alt
-                    previous[node] = u
+                    previous[node] = u.value
                     heapq.heapify(queue)
 
-        print self.dist
-        print previous       
-        return previous
+        currNode = dst
+        lastNode = None
+        path = {}
+        path["srcIp"] = nodes[src]["networkAddress"]
+        path["dstIp"] = nodes[dst]["networkAddress"]
+        print previous
+        while True:
+            prev = None
+            if currNode != src:
+                prev = previous[currNode]
+            print prev
+            if lastNode == None:
+                path[currNode] = {
+                    "node":{
+                        "type":nodes[currNode]["node"]["type"],
+                        "id":nodes[currNode]["node"]["id"]
+                    },
+                    "next":{
+                        "index":prev,
+                        "port":nodes[currNode]["neighbours"][prev]
+                    },
+                    "return":None
+                }
+            elif prev == None:
+                path[currNode] = {
+                    "node":{
+                        "type":nodes[currNode]["node"]["type"],
+                        "id":nodes[currNode]["node"]["id"]
+                    },
+                    "next":None,
+                    "return":{
+                        "index":lastNode,
+                        "port":nodes[currNode]["neighbours"][lastNode]
+                    }
+                }
+            else:
+                path[currNode] = { 
+                    "node":{ 
+                        "type":nodes[currNode]["node"["type"],
+                        "id":nodes[currNode]["node"]["id"]
+                    },
+                    "next":{
+                        "index":prev,
+                        "port":nodes[currNode]["neighbours"][prev]
+                    },
+                    "return":{
+                        "index":lastNode,
+                        "port":nodes[currNode]["neighbours"][lastNode]
+                    }
+                }
+            lastNode = currNode
+            if currNode == src:
+                break
+            currNode = previous[currNode]
+        print path
+        return path
+
+    def pushPath(self, path, name):
+        for node.key in path:
+            if path[node.key]["node"]["type"] == "OF":
+                url = "/controller/nb/v2/flowprogrammer/default/node/OF/" + node["node"]["id"] + \
+                        "/staticFlow/" + name
+
+                flow = {
+                    "installInHw":"true",
+                    "name":name,
+                    "node":{
+                        "id":node["nodeId"],
+                        "type":"OF"
+                    },
+                    "priority":"500",
+                    "etherType":"0x0800",
+                    "nwSrc":path["srcIp"],
+                    "nwDst":path["dstIp"],
+                    "actions":[
+                        "OUTPUT=" + str(node["next"]["port"])
+                    ]
+                }
+                 
         
         
                 
