@@ -57,85 +57,115 @@ class PathService:
                     previous[node] = u.value
                     heapq.heapify(queue)
 
-        currNode = dst
+        currNodeIndex = previous[dst]
+        currNode = nodes[currNodeIndex]
         lastNode = None
         path = {}
         path["srcIp"] = nodes[src]["networkAddress"]
         path["dstIp"] = nodes[dst]["networkAddress"]
-        print previous
         while True:
+            currNode = nodes[currNodeIndex]
             prev = None
-            if currNode != src:
-                prev = previous[currNode]
-            print prev
+            if currNodeIndex != src:
+                prev = previous[currNodeIndex]
+            path[currNodeIndex] = {}
             if lastNode == None:
-                path[currNode] = {
-                    "node":{
-                        "type":nodes[currNode]["node"]["type"],
-                        "id":nodes[currNode]["node"]["id"]
+                '''path[currNodeIndex] = {
+                    'node':{
+                            "type":currNode["node"]["type"],
+                            "id":currNode["node"]["id"],
                     },
                     "next":{
                         "index":prev,
-                        "port":nodes[currNode]["neighbours"][prev]
+                        "port":currNode["neighbours"][prev],
                     },
-                    "return":None
-                }
+                    "return":None,
+                }'''
+                path[currNodeIndex]["node"] = { "type":currNode["node"]["type"], "id":currNode["node"]["id"] }
+                path[currNodeIndex]["next"] = { "index":prev, "port":currNode["neighbours"][prev] }
             elif prev == None:
-                path[currNode] = {
+                '''path[currNodeIndex] = {
                     "node":{
-                        "type":nodes[currNode]["node"]["type"],
-                        "id":nodes[currNode]["node"]["id"]
+                        "type":nodes[currNodeIndex]["node"]["type"],
+                        "id":nodes[currNodeIndex]["node"]["id"],
                     },
                     "next":None,
                     "return":{
                         "index":lastNode,
-                        "port":nodes[currNode]["neighbours"][lastNode]
-                    }
-                }
+                        "port":nodes[currNodeIndex]["neighbours"][lastNode],
+                    },
+                }'''
+                path[currNodeIndex]["node"] = { "type":currNode["node"]["type"], "id":currNode["node"]["id"] }
+                path[currNodeIndex]["return"] = { "index":lastNode, "port":currNode["neighbours"][lastNode] }
             else:
-                path[currNode] = { 
-                    "node":{ 
-                        "type":nodes[currNode]["node"["type"],
-                        "id":nodes[currNode]["node"]["id"]
-                    },
-                    "next":{
-                        "index":prev,
-                        "port":nodes[currNode]["neighbours"][prev]
-                    },
-                    "return":{
-                        "index":lastNode,
-                        "port":nodes[currNode]["neighbours"][lastNode]
-                    }
-                }
-            lastNode = currNode
-            if currNode == src:
+                '''path[currNodeIndex] = 
+                    {
+                        "node":{
+                            "type":nodes[currNodeIndex]["node"["type"],
+                            "id":nodes[currNodeIndex]["node"]["id"],
+                        },
+                        "next":{
+                            "index":prev,
+                            "port":nodes[currNodeIndex]["neighbours"][prev],
+                        },
+                        "return":{
+                            "index":lastNode,
+                            "port":nodes[currNodeIndex]["neighbours"][lastNode],
+                        },
+                    }'''
+                path[currNodeIndex]["node"] = { "type":currNode["node"]["type"], "id":currNode["node"]["id"] }
+                path[currNodeIndex]["next"] = { "index":prev, "port":currNode["neighbours"][prev] }
+                path[currNodeIndex]["return"] = { "index":lastNode, "port":currNode["neighbours"][lastNode] }
+            lastNode = currNodeIndex
+            if currNodeIndex == src:
                 break
-            currNode = previous[currNode]
+            currNodeIndex = previous[currNodeIndex]
         print path
         return path
 
     def pushPath(self, path, name):
-        for node.key in path:
-            if path[node.key]["node"]["type"] == "OF":
-                url = "/controller/nb/v2/flowprogrammer/default/node/OF/" + node["node"]["id"] + \
-                        "/staticFlow/" + name
+        for key in path:
+            if key != "srcIp" and key != "dstIp":
+                node = path[key]
+                if node["node"]["type"] == "OF":
+                    if "next" in node:
+                        url = "/controller/nb/v2/flowprogrammer/default/node/OF/" +\
+                                node["node"]["id"] + "/staticFlow/" + name
+                        flow = {
+                            "installInHw":"true",
+                            "name":name,
+                            "node":{
+                                "id":node["node"]["id"],
+                                "type":"OF"
+                            },
+                            "priority":"500",
+                            "etherType":"0x0800",
+                            "nwSrc":path["srcIp"],
+                            "nwDst":path["dstIp"],
+                            "actions":[
+                                "OUTPUT=" + str(node["next"]["port"])
+                            ]
+                        }
+                        self.io.put(url, flow)
 
-                flow = {
-                    "installInHw":"true",
-                    "name":name,
-                    "node":{
-                        "id":node["nodeId"],
-                        "type":"OF"
-                    },
-                    "priority":"500",
-                    "etherType":"0x0800",
-                    "nwSrc":path["srcIp"],
-                    "nwDst":path["dstIp"],
-                    "actions":[
-                        "OUTPUT=" + str(node["next"]["port"])
-                    ]
-                }
-                 
-        
-        
-                
+                    if "return" in node:
+                        name = name + "_return"
+                        url = "/controller/nb/v2/flowprogrammer/default/node/OF/" +\
+                                node["node"]["id"] + "/staticFlow/" + name
+                        flow = { 
+                            "installInHw":"true",
+                            "name":name,
+                            "node":{
+                                "id":node["node"]["id"],
+                                "type":"OF"
+                            },  
+                            "priority":"500",
+                            "etherType":"0x0800",
+                            "nwSrc":path["dstIp"],
+                            "nwDst":path["srcIp"],
+                            "actions":[
+                                "OUTPUT=" + str(node["return"]["port"])
+                            ]   
+                        }      
+
+                        self.io.put(url, flow)

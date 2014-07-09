@@ -6,7 +6,7 @@ import PathService
 if __name__ == "__main__":
     inv = InventoryService.InventoryService()
     io = IOService.IOService()
-    io.setController("172.24.240.19", "8080", "admin", "cc-nie")
+    io.setController("172.16.6.12", "8080", "admin", "cc-nie")
     inv.setIOService(io)
     inv.getNodesFromController()       
     inv.getEdgesFromController()
@@ -14,6 +14,8 @@ if __name__ == "__main__":
     inv.initAll()
     ps = PathService.PathService()
     ps.setInventoryService(inv)
-    ps.dijkstra(14, 7)   
+    ps.setIOService(io)
+    path = ps.dijkstra(4,6)   
+    ps.pushPath(path, "test")
 
     

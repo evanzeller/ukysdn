@@ -12,28 +12,29 @@ class InventoryService:
         self.io = io
    
     def initAll(self):
+        self.initNodes()
         self.initHosts()
         self.initPRNodes()
-        self.initNodes()
         self.initEdges()
 
     def initPRNodes(self):
         for edge in self.edges:
-            if edge["edge"]["tailNodeConnector"]["node"]["type"] == "PR":
-                node = {
-                    "properties":{
-                        "description":edge["edge"]["tailNodeConnector"]["node"]["id"],
-                        "nodeConnector":{
-                            "id":edge["edge"]["tailNodeConnector"]["id"]
+            if "edge" in edge:
+                if edge["edge"]["tailNodeConnector"]["node"]["type"] == "PR":
+                    node = {
+                        "properties":{
+                            "description":edge["edge"]["tailNodeConnector"]["node"]["id"],
+                            "nodeConnector":{
+                                "id":edge["edge"]["tailNodeConnector"]["id"]
+                            }
+                        },
+                        "node":{
+                            "id":edge["edge"]["tailNodeConnector"]["node"]["id"],
+                            "type":"PR"
                         }
-                    },
-                    "node":{
-                        "id":edge["edge"]["tailNodeConnector"]["node"]["id"],
-                        "type":"PR"
                     }
-                }
-                if node not in self.nodes:
-                    self.nodes.append(node)
+                    if node not in self.nodes:
+                        self.nodes.append(node)
  
     def initNodes(self):
         for node in self.nodes:
@@ -42,6 +43,7 @@ class InventoryService:
             
     def initHosts(self):
         for host in self.hosts:
+            host["node"] = { "type":"HOST", "id":host["dataLayerAddress"] }
             self.nodes.append(host)
             self.indexDict[host["dataLayerAddress"]] = self.nodes.index(host)
             self.edges.append({
@@ -51,7 +53,7 @@ class InventoryService:
 
     def initEdges(self):
         for edge in self.edges:
-            if edge["edge"]:
+            if "edge" in edge:
                 edge["source"] = self.indexDict[edge["edge"]["headNodeConnector"]["node"]["id"]]
                 edge["target"] = self.indexDict[edge["edge"]["tailNodeConnector"]["node"]["id"]]
                 source = edge["source"]
@@ -59,6 +61,10 @@ class InventoryService:
                 self.nodes[source]["neighbours"][target] = edge["edge"]["headNodeConnector"]["id"]
                 self.nodes[target]["neighbours"][source] = edge["edge"]["tailNodeConnector"]["id"]
             else:
+                source = edge["source"]
+                target = edge["target"]
+                self.nodes[source]["neighbours"] = {}
+                self.nodes[source]["neighbours"][target] = -1
                 self.nodes[target]["neighbours"][source] = self.nodes[source]["nodeConnectorId"]
  
     def getNodesFromController(self):

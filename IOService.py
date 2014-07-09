@@ -1,3 +1,4 @@
+import json
 import httplib2
 
 class IOService:
@@ -19,5 +20,13 @@ class IOService:
         
         return content
 
+    def put(self, url, content):
+        url = "http://" + str(self.controller["ip"]) + ":" + str(self.controller["port"]) + url
+        
+        h = httplib2.Http(".Cache")
+        h.add_credentials(self.controller["user"], self.controller["passwd"])
+        resp = h.request(url, "PUT", body=str(json.dumps(content)), \
+                        headers={"Content-Type":"application/json"})
 
+        print resp
     
