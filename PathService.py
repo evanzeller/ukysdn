@@ -25,6 +25,13 @@ class PathService:
     def setInventoryService(self, inv):
         self.inv = inv
 
+    def getNodeByIp(self, ip):
+        nodes = self.inv.getNodes()
+        for node in nodes:
+            if node["node"]["type"] == "HOST":
+                if node["networkAddress"] == ip:
+                    return nodes.index(node)
+
     def dijkstra(self, src, dst):
         self.dist = {}
         previous = {}

@@ -35,6 +35,8 @@ class InventoryService:
                     }
                     if node not in self.nodes:
                         self.nodes.append(node)
+                        node["neighbours"] = {}
+                        self.indexDict[node["node"]["id"]] = self.nodes.index(node)
  
     def initNodes(self):
         for node in self.nodes:
@@ -66,6 +68,11 @@ class InventoryService:
                 self.nodes[source]["neighbours"] = {}
                 self.nodes[source]["neighbours"][target] = -1
                 self.nodes[target]["neighbours"][source] = self.nodes[source]["nodeConnectorId"]
+
+    def getNodeIndexByIp(self, ip):
+        for host in self.hosts:
+            if host["networkAddress"] == ip:
+                return self.nodes.index(host)        
  
     def getNodesFromController(self):
         url = "/controller/nb/v2/switchmanager/default/nodes"
