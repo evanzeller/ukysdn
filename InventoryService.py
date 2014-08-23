@@ -7,6 +7,7 @@ class InventoryService:
         self.edges = []
         self.hosts = []
         self.indexDict = {}
+        self.paths = {}
 
     def setIOService(self, io):
         self.io = io
@@ -16,6 +17,12 @@ class InventoryService:
         self.initHosts()
         self.initPRNodes()
         self.initEdges()
+
+    def add_path(self, name, path):
+        self.paths["name"] = path
+
+    def getPaths(self):
+        return self.paths
 
     def initPRNodes(self):
         for edge in self.edges:

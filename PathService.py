@@ -130,7 +130,7 @@ class PathService:
         print path
         return path
 
-    def pushPath(self, path, name):
+    def pushPath(self, name, path):
         for key in path:
             if key != "srcIp" and key != "dstIp":
                 node = path[key]
@@ -140,6 +140,7 @@ class PathService:
                                 node["node"]["id"] + "/staticFlow/" + name
                         flow = {
                             "installInHw":"true",
+                            "vlanId":"162",
                             "name":name,
                             "node":{
                                 "id":node["node"]["id"],
@@ -161,6 +162,7 @@ class PathService:
                                 node["node"]["id"] + "/staticFlow/" + name
                         flow = { 
                             "installInHw":"true",
+                            "vlanId":"162",
                             "name":name,
                             "node":{
                                 "id":node["node"]["id"],
