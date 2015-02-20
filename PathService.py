@@ -43,6 +43,7 @@ class PathService:
         
         queue = []
         
+        #TODO: weights based on bandwidth reported
         for edge in edges:
             weight[edge["source"]][edge["target"]] = 1
             weight[edge["target"]][edge["source"]] = 1
@@ -77,7 +78,7 @@ class PathService:
                 prev = previous[currNodeIndex]
             path[currNodeIndex] = {}
             if lastNode == None:
-                '''path[currNodeIndex] = {
+                path[currNodeIndex] = {
                     'node':{
                             "type":currNode["node"]["type"],
                             "id":currNode["node"]["id"],
@@ -87,11 +88,11 @@ class PathService:
                         "port":currNode["neighbours"][prev],
                     },
                     "return":None,
-                }'''
+                }
                 path[currNodeIndex]["node"] = { "type":currNode["node"]["type"], "id":currNode["node"]["id"] }
                 path[currNodeIndex]["next"] = { "index":prev, "port":currNode["neighbours"][prev] }
             elif prev == None:
-                '''path[currNodeIndex] = {
+                path[currNodeIndex] = {
                     "node":{
                         "type":nodes[currNodeIndex]["node"]["type"],
                         "id":nodes[currNodeIndex]["node"]["id"],
@@ -101,11 +102,11 @@ class PathService:
                         "index":lastNode,
                         "port":nodes[currNodeIndex]["neighbours"][lastNode],
                     },
-                }'''
+                }
                 path[currNodeIndex]["node"] = { "type":currNode["node"]["type"], "id":currNode["node"]["id"] }
                 path[currNodeIndex]["return"] = { "index":lastNode, "port":currNode["neighbours"][lastNode] }
             else:
-                '''path[currNodeIndex] = 
+                path[currNodeIndex] = 
                     {
                         "node":{
                             "type":nodes[currNodeIndex]["node"["type"],
@@ -119,7 +120,7 @@ class PathService:
                             "index":lastNode,
                             "port":nodes[currNodeIndex]["neighbours"][lastNode],
                         },
-                    }'''
+                    }
                 path[currNodeIndex]["node"] = { "type":currNode["node"]["type"], "id":currNode["node"]["id"] }
                 path[currNodeIndex]["next"] = { "index":prev, "port":currNode["neighbours"][prev] }
                 path[currNodeIndex]["return"] = { "index":lastNode, "port":currNode["neighbours"][lastNode] }
